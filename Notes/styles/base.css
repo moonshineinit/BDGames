@@ -1,0 +1,52 @@
+/* ============================================================
+ *  base.css —— 重置 + 页面骨架 + Livehouse 背景氛围
+ * ========================================================== */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--text);
+  background: var(--bg-0);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+/* 背景：舞台逆光 + 雾气 + 顶部两束扫射光 */
+body::before {
+  content: "";
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(120% 80% at 50% 8%, var(--stage-glow), transparent 62%),
+    radial-gradient(60% 50% at 12% 90%, rgba(90, 210, 255, .10), transparent 70%),
+    radial-gradient(60% 50% at 88% 90%, rgba(255, 77, 141, .10), transparent 70%),
+    linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 55%, var(--bg-0) 100%);
+}
+/* 扫描线：原来用 mix-blend-mode: overlay，会让整屏每帧重新混合一次，
+   是掉帧的大头；改成普通叠加，视觉差别几乎看不出来 */
+body::after {
+  content: "";
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: repeating-linear-gradient(0deg, rgba(255,255,255,.028) 0 1px, transparent 1px 3px);
+  opacity: .55;
+}
+
+.app {
+  position: relative; z-index: 1;
+  height: 100%;
+  display: flex; flex-direction: column;
+}
+
+h1, h2, h3 { margin: 0; font-family: var(--font-display); letter-spacing: .04em; }
+button { font-family: var(--font-body); cursor: pointer; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+code {
+  font-family: var(--font-mono);
+  background: var(--slot-bg);
+  padding: 1px 5px; border-radius: 4px; font-size: .9em;
+}
