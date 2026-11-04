@@ -1,0 +1,287 @@
+/* ============================================================
+ *  mobile.css —— 触屏 / 手机端适配（手机正式体验 = 竖屏）
+ *  1) 全局触屏规则（任何设备都生效，不影响桌面）
+ *  2) 窄屏断点 max-width: 900px：重排版面
+ *  3) 横屏短视口：仅作兜底，不再专门维护
+ * ========================================================== */
+
+/* ---------------- 1) 触屏全局 ---------------- */
+html, body { overscroll-behavior: none; }      /* 拖拽时不会触发下拉刷新 */
+body { -webkit-touch-callout: none; }           /* 长按图片不弹系统菜单 */
+
+/* 拖拽源必须禁掉浏览器手势，否则按住成员/卡牌会被当成滚动手势吃掉 */
+.member, .card { touch-action: none; }
+/* 手牌例外：横向滑 = 滚动浏览手牌，向上拖 = 打出（出牌本来就是往上拖） */
+.hand, .hand .card { touch-action: pan-x; }
+
+button, .postercard { touch-action: manipulation; }  /* 去掉双击缩放延迟 */
+
+/* 用 dvh 兜住手机浏览器地址栏伸缩；不支持 dvh 的浏览器保留 base.css 的 100% */
+.app { height: 100dvh; }
+.modal { max-height: 92dvh; }
+
+/* 刘海屏安全区 */
+.handbar { padding-bottom: calc(8px + env(safe-area-inset-bottom)); }
+.topbar  { padding-top: calc(8px + env(safe-area-inset-top)); }
+
+/* 「详情」抽屉按钮：桌面隐藏，窄屏显示 */
+.only-mobile { display: none; }
+
+/* ---------------- 2) 窄屏断点 ---------------- */
+@media (max-width: 900px) {
+  :root {
+    /* 整套尺寸收小：保证 5 张阵营卡 + 5 张台上卡都放得下 */
+    --card-h: clamp(88px, 14vh, 118px);
+    --mem-h: clamp(78px, 12vh, 96px);
+    --mem-h-stage: clamp(84px, 13.5vh, 112px);
+    --lane-h: calc(var(--mem-h) + 14px);
+    --hand-h: calc(var(--card-h) + 42px);
+  }
+  .only-mobile { display: inline-block; }
+
+  /* ---- 顶栏：两行 —— 两个对阵面板一行，回合信息 + 按钮一行 ---- */
+  .topbar { height: auto; flex: 0 0 auto; flex-wrap: wrap; gap: 6px 8px; padding: 6px 8px; }
+  .actor { width: auto; flex: 1 1 0; min-width: 0; }
+  .actor-inner { padding: 5px 9px; min-width: 0; }
+  .aband { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .aspark { min-width: 0; }
+  .aspark .lab { display: none; }
+  .sv b { font-size: 13px; }
+  .sv { font-size: 10px; white-space: nowrap; }
+  .ameta { gap: 5px; min-width: 0; }
+  .tag { font-size: 9px; padding: 1px 5px; white-space: nowrap; }
+  .midcol { order: 3; flex: 1 1 100%; flex-direction: row; flex-wrap: wrap; gap: 6px 8px; }
+  .turnline { flex: 0 0 auto; }
+  .turnno { font-size: 13px; white-space: nowrap; letter-spacing: .06em; }
+  .diffchip { font-size: 9.5px; white-space: nowrap; }
+  .actionsrow { flex: 1 1 auto; flex-wrap: wrap; justify-content: flex-end; gap: 5px; }
+  .btn-end { padding: 4px 12px; font-size: 11.5px; }
+  .tools { gap: 4px; }
+  .tools button { padding: 3px 8px; font-size: 10px; white-space: nowrap; }
+
+  /* ---- 侧栏：默认藏起，点「详情」从右侧滑出抽屉 ---- */
+  .sidebar { display: none; }
+  body.m-detail .sidebar {
+    display: flex; position: fixed; right: 0; top: 0;
+    height: 100dvh; width: min(320px, 88vw); z-index: 390;
+    padding: 10px; padding-top: calc(10px + env(safe-area-inset-top));
+    background: var(--bg-1); border-left: 1px solid var(--line-2);
+    box-shadow: var(--shadow-2);
+  }
+
+  /* ---- 棋盘 ---- */
+  .stage-wrap { padding: 5px 8px; gap: 0; }
+  .board { gap: 5px; min-width: 0; }
+  .lane { min-width: 0; }
+  .lane.camp { padding: 5px 6px; }
+  .camprow { gap: 4px; }
+  .lanelabel { left: 8px; top: 4px; font-size: 9.5px; }
+
+  /* 星星盘压窄，给 5 张阵营卡让位 */
+  .bigstars { left: 6px; width: 56px; padding: 4px 2px 3px; border-radius: 10px; }
+  .bigstars .bsnum b { font-size: 22px; }
+  .bigstars .bsnum em { font-size: 10px; }
+  .bigstars .bslab { font-size: 8.5px; letter-spacing: .1em; }
+  .bigstars .bspips { max-width: 52px; }
+  .bigstars .bspips i { font-size: 8.5px; }
+  #selfCamp { padding-left: 66px; }
+
+  /* 舞台装饰按比例缩小 */
+  .stagezone { min-height: calc(var(--mem-h-stage) + 44px); }
+  .platform { left: 4%; right: 4%; bottom: 14px; height: clamp(76px, 12vh, 108px); }
+  .speaker { width: 26px; height: 58px; bottom: 14px; }
+  .speaker i { width: 15px; height: 15px; }
+  .truss { top: 5px; height: 10px; left: 5%; right: 5%; }
+  .truss i { width: 5px; height: 5px; }
+  .stagecap span { font-size: 9px; }
+  .stagecap b { font-size: 11px; }
+  .crowd span { width: 8px; height: 12px; }
+
+  /* ---- 手牌：横向滑动浏览，左右统计收小 ---- */
+  .handbar { gap: 8px; padding: 0 8px; }
+  .pile { width: auto; flex: 0 0 auto; flex-direction: row; gap: 5px; }
+  .pn { min-width: 0; padding: 4px 8px; }
+  .pn b { font-size: 14px; }
+  .pn span { font-size: 8px; }
+  #pileRight { display: none; }          /* 对手手牌数：桌面才显示 */
+  .hand {
+    overflow-x: auto; overflow-y: hidden;
+    justify-content: flex-start;
+    gap: 8px; padding: 14px 4px 10px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .hand::-webkit-scrollbar { display: none; }
+  .card.sel { transform: translateY(-10px); }
+
+  /* ---- 弹窗：padding 收小，选乐队海报改自适应列数 ---- */
+  .modal { padding: 18px 16px; }
+  .modal h1 { font-size: 24px; }
+  .modal.pick { width: 96vw; }
+  .modal .actions { flex-wrap: wrap; }
+  .pool.postpool, .pool.postpool.four {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+  }
+  .steps { font-size: 9px; gap: 10px; flex-wrap: wrap; }
+  .btn-primary { padding: 12px 32px; font-size: 16px; }  /* 触控目标放大 */
+  .btn-ghost { padding: 11px 24px; }
+  .pcap .pt { font-size: 11px; }
+
+  /* ---- 主界面 ---- */
+  .ts-title.latin { font-size: clamp(46px, 15vw, 88px); }
+  .ts-kicker { font-size: 10px; }
+  .ts-sub { font-size: 12.5px; max-width: 86vw; margin-top: 14px; line-height: 1.8; }
+  .ts-actions { margin-top: 24px; flex-direction: column; gap: 12px; }
+  .btn-play { padding: 13px 46px; font-size: 16px; }
+  .ts-bands { margin-top: 24px; gap: 6px 12px; }
+
+  /* ---- 其它 ---- */
+  .toast { font-size: 12.5px; max-width: 86vw; }
+  .banner b { font-size: 20px; }
+}
+
+/* ---------------- 2b) 手机竖屏（≤430px）再收一档 ----------------
+ * 5 张阵营卡 + 星星盘必须挤进一行，否则整页会被撑宽 */
+@media (max-width: 430px) {
+  :root {
+    --mem-h: clamp(64px, 10.2vh, 84px);
+    --mem-h-stage: clamp(70px, 11vh, 92px);
+    --card-h: clamp(96px, 15vh, 122px);
+    --lane-h: calc(var(--mem-h) + 12px);
+    --hand-h: calc(var(--card-h) + 42px);
+  }
+  .bigstars { width: 50px; left: 5px; }
+  .bigstars .bsnum b { font-size: 19px; }
+  .bigstars .bsnum em { font-size: 9px; margin-left: 1px; }
+  .bigstars .bslab { font-size: 7.5px; letter-spacing: .06em; }
+  .bigstars .bspips { max-width: 46px; margin-top: 3px; }
+  .bigstars .bspips i { font-size: 8px; }
+  #selfCamp { padding-left: 58px; }
+  .camprow { gap: 3px; }
+  .lane.camp { padding: 4px 5px; }
+  .member { padding: 5px 4px 6px; border-radius: 9px; }
+  /* 窄卡里「♪ 3」「5/5」必须各占一行内，别让 ♪ 和数字换行 */
+  .mstat { gap: 5px; font-size: 10px; }
+  .mstat .sk { white-space: nowrap; }
+  .mstat .sk b { font-size: 15px; }
+  .mstat .vt { font-size: 10px; white-space: nowrap; }
+  /* 名字只留一行、藏掉代号，给立绘和数值腾出高度；角标同步缩小免得压住名字 */
+  .mname { font-size: 9.5px; -webkit-line-clamp: 1; }
+  .mmask { display: none; }
+  .mfig { min-height: 16px; }
+  .mcost { width: 20px; height: 20px; left: -3px; top: -4px; }
+  .mcost b { font-size: 12px; }
+  .mcrown { font-size: 7.5px; padding: 1px 4px; top: 1px; right: 1px; }
+  .stagerow { gap: 5px; padding: 0 6px; }
+  .pn span { white-space: nowrap; }
+}
+
+/* ---------------- 3) 横屏短视口（仅作兜底，不再专门维护）----------------
+ * 手机正式体验是竖屏；这块是用户自己把手机横过来时的保底样式，
+ * 保证不烂版即可。更矮的（≤340px 老款小屏）允许整页上下滚动兜底 */
+@media (max-height: 480px) and (max-width: 1000px) {
+  :root {
+    --card-h: clamp(56px, 15.4vh, 84px);
+    --card-w: calc(var(--card-h) * 0.715);
+    --mem-h: clamp(54px, 15.5vh, 78px);
+    --mem-h-stage: clamp(56px, 16vh, 82px);
+    --lane-h: calc(var(--mem-h) + 8px);
+    --hand-h: calc(var(--card-h) + 30px);
+  }
+  /* 横屏横向空间富余、纵向吃紧：成员卡压扁但放宽，避免文字竖排 */
+  .member { width: calc(var(--mem-h) * 0.82); }
+  .stagerow .member { width: calc(var(--mem-h-stage) * 0.82); }
+  /* 顶栏压成单行：只留乐队名 + 闪耀条，其余让位给舞台 */
+  .topbar { height: 44px; flex-wrap: nowrap; padding: 3px 10px; gap: 8px; }
+  .actor { width: auto; flex: 1 1 0; min-width: 0; }
+  .actor-inner { padding: 2px 8px; }
+  .aband { font-size: 10.5px; }
+  .aspark { margin-top: 2px; }
+  .aspark .lab { display: none; }
+  .sbar { height: 7px; }
+  .sv b { font-size: 11px; }
+  .ameta { display: none; }
+  .midcol { order: 2; flex: 1 1 auto; flex-direction: row; gap: 8px; }
+  .turnno { font-size: 12px; }
+  .actionsrow { gap: 5px; }
+  .btn-end { padding: 3px 12px; font-size: 11px; }
+  .tools button { padding: 2px 8px; font-size: 10px; }
+
+  /* 棋盘更紧凑 */
+  .stage-wrap { padding: 3px 8px; }
+  .board { gap: 4px; }
+  .lane.camp { padding: 3px 5px; }
+  .camprow { gap: 4px; }
+  .lanelabel { display: none; }             /* 横屏高度金贵，标签让位 */
+  .bigstars { width: 56px; left: 4px; padding: 3px 2px; }
+  .bigstars .bsnum b { font-size: 17px; }
+  .bigstars .bslab { display: none; }
+  .bigstars .bspips { margin-top: 2px; max-width: 50px; }
+  .bigstars .bspips i { font-size: 7.5px; }
+  #selfCamp { padding-left: 62px; }
+  .stagezone { min-height: calc(var(--mem-h-stage) + 24px); }
+  .platform { height: clamp(56px, 10vh, 84px); bottom: 8px; left: 4%; right: 4%; }
+  .speaker { height: 38px; width: 20px; bottom: 8px; }
+  .speaker i { width: 11px; height: 11px; }
+  .truss { top: 3px; height: 7px; }
+  .truss i { width: 4px; height: 4px; }
+  .stagecap span { font-size: 8px; }
+  .stagecap b { font-size: 10px; }
+  .stageempty { font-size: 10px; top: 24%; }
+
+  /* ---- 成员卡：改成「紧凑卡」——藏掉名字，只留立绘 + 技能/活力 ---- */
+  .member { padding: 3px 3px 4px; border-radius: 8px; overflow: hidden; }
+  .member .mname { display: none; }
+  .mstat { margin-top: 1px; gap: 0; font-size: 8.5px; flex-direction: column; align-items: center; line-height: 1.05; }
+  .mstat .sk b { font-size: 12px; }
+  .mstat .vt { font-size: 8.5px; }
+  .vbar { height: 4px; margin-top: 2px; width: 88%; }
+  .mcost { width: 19px; height: 19px; left: -3px; top: -3px; }
+  .mcost b { font-size: 11px; }
+  .mcost span { display: none; }
+  .mcrown { font-size: 7px; padding: 1px 3px; right: 1px; top: 1px; }
+  .badges { top: 2px; right: 2px; gap: 2px; }
+  .badges .bd { font-size: 8px; padding: 0 3px; }
+  .stunmask b { font-size: 9px; }
+  .stunmask span, .stunmask i { font-size: 7.5px; }
+  .restmask b { font-size: 9px; }
+  .stagerow { gap: 5px; padding: 0 8px; }
+
+  /* ---- 手牌：小卡只留图形 + 费用，文字收起来（点一下看详情） ---- */
+  .handbar { padding: 0 8px 4px; gap: 6px; }
+  .pile { gap: 4px; }
+  .pn { padding: 2px 7px; }
+  .pn b { font-size: 12px; }
+  .pn span { font-size: 7.5px; white-space: nowrap; }
+  .hand { gap: 6px; padding: 6px 4px 4px; }
+  .card { padding: 4px 4px 3px; border-radius: 8px; }
+  .card .cost { width: 17px; height: 17px; font-size: 10px; left: 3px; top: 3px; }
+  .cname { font-size: 8px; height: auto; line-height: 1.15; -webkit-line-clamp: 2; }
+  .ctext, .cband { display: none; }
+  .cart svg { width: 82%; height: 82%; }
+
+  /* 弹窗 / 主界面缩一档 */
+  .modal { padding: 14px 16px; }
+  .modal h1 { font-size: 20px; }
+  .modal .sub { margin-bottom: 10px; }
+  .modal h3 { margin: 10px 0 6px; }
+  .modal li { line-height: 1.6; }
+  .modal .actions { margin-top: 12px; }
+  .modal-x { width: 28px; height: 28px; font-size: 12px; }
+  .ts-title.latin { font-size: clamp(40px, 9vh, 64px); }
+  .ts-sub { font-size: 11px; margin-top: 8px; line-height: 1.6; }
+  .ts-actions { margin-top: 14px; flex-direction: row; gap: 10px; }
+  .btn-play { padding: 9px 30px; font-size: 13px; }
+  .btn-ghost { padding: 8px 18px; font-size: 12px; }
+  .ts-bands { margin-top: 12px; }
+  .postercard .pcap { padding: 4px 6px 5px; }
+  .pcap .pt { font-size: 9px; }
+  .steps { margin-bottom: 8px; }
+}
+
+/* 老款小屏横过来仍不够高（≤340px），最后兜底：允许整页上下滚动 */
+@media (max-height: 340px) {
+  body { overflow: auto; }
+  .app { height: auto; min-height: 100dvh; }
+}

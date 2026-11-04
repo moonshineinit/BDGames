@@ -1,0 +1,179 @@
+/* ============================================================
+ *  anim.css —— 全部动效
+ * ========================================================== */
+
+/* ---------------- 舞台氛围 ---------------- */
+@keyframes bulb {
+  0%, 100% { opacity: .28; transform: scale(.85); }
+  50%      { opacity: 1;   transform: scale(1.15); }
+}
+@keyframes beamSway {
+  0%   { transform: rotate(-9deg) scaleY(.92); opacity: .55; }
+  100% { transform: rotate(9deg)  scaleY(1.05); opacity: .95; }
+}
+@keyframes glowstick {
+  0%   { transform: rotate(-16deg); }
+  100% { transform: rotate(16deg); }
+}
+@keyframes breath {
+  0%, 100% { opacity: .45; }
+  50%      { opacity: .95; }
+}
+@keyframes marquee {
+  to { background-position: 26px 0; }
+}
+@keyframes stageBreath {
+  0%, 100% { opacity: .45; transform: translateX(-50%) scale(.94); }
+  50%      { opacity: .85; transform: translateX(-50%) scale(1.06); }
+}
+
+/* ---------------- 成员动作 ---------------- */
+@keyframes lunge {
+  0%   { transform: translate(0, 0) scale(1); }
+  32%  { transform: translate(calc(var(--dx, 0px) * .5), calc(var(--dy, 0px) * .5)) scale(1.07); }
+  58%  { transform: translate(var(--dx, 0px), var(--dy, 0px)) scale(1.03); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+.member.lunge {
+  animation: lunge .46s cubic-bezier(.3,.8,.3,1) both;
+  z-index: 40;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  14% { transform: translateX(-8px) rotate(-1.6deg); }
+  32% { transform: translateX(7px) rotate(1.3deg); }
+  52% { transform: translateX(-5px) rotate(-.9deg); }
+  74% { transform: translateX(3px) rotate(.5deg); }
+}
+.member.hit { animation: shake .44s ease-out both; }
+
+@keyframes koFlash {
+  0%   { box-shadow: 0 0 0 0 rgba(255, 84, 112, .7); }
+  100% { box-shadow: 0 0 0 26px rgba(255, 84, 112, 0); }
+}
+.member.ko { animation: koFlash .6s ease-out both; }
+
+@keyframes glowUp {
+  0%   { filter: brightness(1); }
+  40%  { filter: brightness(1.7) saturate(1.3); }
+  100% { filter: brightness(1); }
+}
+.member.glow { animation: glowUp .8s ease-out both; }
+
+/* ---------------- 高亮 ---------------- */
+@keyframes pickPulse {
+  0%, 100% { box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-2) 45%, transparent) inset,
+                         0 0 14px color-mix(in srgb, var(--accent-2) 25%, transparent); }
+  50%      { box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-2) 85%, transparent) inset,
+                         0 0 26px color-mix(in srgb, var(--accent-2) 45%, transparent); }
+}
+@keyframes urgePulse {
+  0%, 100% { box-shadow: 0 4px 16px color-mix(in srgb, var(--accent) 45%, transparent); }
+  50%      { box-shadow: 0 4px 26px color-mix(in srgb, var(--accent) 85%, transparent); }
+}
+
+/* ---------------- 飘字 ---------------- */
+@keyframes floatUp {
+  0%   { transform: translate(-50%, 0) scale(.55); opacity: 0; }
+  20%  { transform: translate(-50%, -16px) scale(1.28); opacity: 1; }
+  100% { transform: translate(-50%, -68px) scale(1); opacity: 0; }
+}
+.floatnum {
+  position: fixed; z-index: 345; pointer-events: none;
+  font-family: var(--font-display); font-size: 30px; line-height: 1;
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+  text-shadow: 0 3px 14px rgba(0,0,0,.85);
+  animation: floatUp 1s cubic-bezier(.2,.8,.2,1) both;
+}
+.floatnum.dmg   { color: #ff5470; }
+.floatnum.heal  { color: #4ade80; }
+.floatnum.buff  { color: #ffd166; font-size: 25px; }
+.floatnum.star  { color: var(--star); font-size: 22px; }
+.floatnum.spark { color: var(--star); font-size: 26px; text-shadow: 0 0 20px rgba(255,209,102,.9), 0 3px 12px rgba(0,0,0,.8); }
+.floatnum.rest  { color: #b9b2cc; font-size: 22px; }
+
+/* ---------------- 星星飞出 ---------------- */
+@keyframes starFly {
+  0%   { transform: translate(0,0) scale(.5); opacity: 0; }
+  28%  { opacity: 1; }
+  100% { transform: translate(var(--sx, 0px), var(--sy, -70px)) scale(1.15); opacity: 0; }
+}
+.starfly {
+  position: fixed; z-index: 344; pointer-events: none;
+  font-size: 19px; color: var(--star);
+  text-shadow: 0 0 12px rgba(255,209,102,.9);
+  animation: starFly .85s ease-out both;
+}
+
+/* ---------------- 聚光灯扫过 ---------------- */
+@keyframes spotSweep {
+  0%   { transform: translateX(-46%) scaleY(.55); opacity: 0; }
+  40%  { opacity: .6; }
+  100% { transform: translateX(46%) scaleY(.55); opacity: 0; }
+}
+.spot {
+  position: absolute; top: 0; bottom: 0; width: 42%;
+  left: 29%;
+  pointer-events: none; z-index: 5;
+  background: radial-gradient(closest-side, rgba(255,255,255,.22), transparent 76%);
+  mix-blend-mode: screen;
+  animation: spotSweep 1s ease-out both;
+}
+
+/* ---------------- 拖拽箭头 ---------------- */
+@keyframes dashMove {
+  to { stroke-dashoffset: -21; }
+}
+
+/* ---------------- 弹层 / 横幅 ---------------- */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes modalIn {
+  0%   { transform: translateY(20px) scale(.96); opacity: 0; }
+  100% { transform: none; opacity: 1; }
+}
+@keyframes bannerSweep {
+  0%   { transform: translateX(-12%) scale(.94); opacity: 0; letter-spacing: .5em; }
+  18%  { transform: translateX(0) scale(1); opacity: 1; letter-spacing: .12em; }
+  74%  { transform: translateX(0) scale(1); opacity: 1; }
+  100% { transform: translateX(9%) scale(1.02); opacity: 0; }
+}
+
+/* ---------------- 震屏 ---------------- */
+@keyframes boardShake {
+  0%, 100% { transform: translate(0,0); }
+  25% { transform: translate(-5px, 2px); }
+  50% { transform: translate(5px, -2px); }
+  75% { transform: translate(-2px, -1px); }
+}
+body.quake .app { animation: boardShake .34s ease-out both; }
+
+/* ---------------- 胜利彩带 ---------------- */
+@keyframes confFall {
+  0%   { transform: translateY(-12vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(108vh) rotate(720deg); opacity: .9; }
+}
+.confetti { position: fixed; inset: 0; z-index: 380; pointer-events: none; overflow: hidden; }
+.confetti i {
+  position: absolute; top: 0; width: 8px; height: 15px; border-radius: 2px;
+  animation: confFall linear forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+@keyframes winglow {
+  0%, 100% { box-shadow: 0 0 0 rgba(255,209,102,0); }
+  50%      { box-shadow: 0 0 34px 8px rgba(255,209,102,.7); }
+}
+@keyframes vspot {
+  0%   { opacity: 0; transform: scale(1.06); }
+  22%  { opacity: 1; transform: scale(1); }
+  76%  { opacity: 1; }
+  100% { opacity: 0; }
+}
