@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Our Notes</title>
+<link rel="stylesheet" href="styles/tokens.css">
+<link rel="stylesheet" href="styles/base.css">
+<link rel="stylesheet" href="styles/components.css">
+<link rel="stylesheet" href="styles/anim.css">
+<link rel="stylesheet" href="styles/mobile.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ================= 顶栏 ================= -->
+  <header class="topbar">
+    <div class="actor enemy" id="enemyInfo"></div>
+
+    <div class="midcol">
+      <div class="turnline">
+        <div class="turnno" id="turnNo">第 1 幕</div>
+        <div class="diffchip" id="diffChip"></div>
+      </div>
+      <div class="actionsrow">
+        <button class="btn-end" id="btnEnd">结束回合</button>
+        <div class="tools">
+          <button id="btnRules">规则</button>
+          <button id="btnDetail" class="only-mobile" title="查看成员 / 卡牌详情与演出记录">详情</button>
+          <button id="btnTheme">日场</button>
+          <button id="btnPerf" title="关掉舞台氛围光效，老机器更顺滑">流畅</button>
+          <button id="btnRestart">重开</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="actor self" id="selfInfo"></div>
+  </header>
+
+  <!-- ================= 棋盘 + 侧栏 ================= -->
+  <main class="stage-wrap">
+    <section class="board" id="board">
+
+      <div class="lane camp" id="laneEnemy">
+        <span class="lanelabel">对方阵营</span>
+        <div class="camprow" id="enemyCamp"></div>
+      </div>
+
+      <!-- 舞台：中间是一个真实的台子，不预留方框，有人上来就自适应排列 -->
+      <div class="stagezone" id="stageZone">
+        <div class="truss">
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+        <div class="beams">
+          <span class="beam b1"></span><span class="beam b2"></span><span class="beam b3"></span>
+        </div>
+
+        <div class="speaker sl"><i></i><i></i><i></i></div>
+        <div class="speaker sr"><i></i><i></i><i></i></div>
+
+        <div class="platform">
+          <div class="pfloor"></div>
+          <div class="plights"></div>
+          <div class="stagerow" id="stageRow"></div>
+          <div class="stageempty">舞台空着 · 把成员拖上台</div>
+        </div>
+
+        <div class="crowd cl">
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <div class="crowd cr">
+          <span></span><span></span><span></span><span></span>
+        </div>
+
+        <div class="stagecap">
+          <span>LIVE HOUSE · OUR NOTES</span>
+          <b id="stageCount">0 / 5</b>
+        </div>
+      </div>
+
+      <div class="lane camp" id="laneSelf">
+        <div class="bigstars" id="selfStars"></div>
+        <span class="lanelabel">我方阵营</span>
+        <div class="camprow" id="selfCamp"></div>
+      </div>
+    </section>
+
+    <aside class="sidebar">
+      <div class="pane detail">
+        <h2>详情</h2>
+        <div class="body" id="detail"></div>
+      </div>
+      <div class="pane log">
+        <h2>演出记录</h2>
+        <div class="body" id="logpane"></div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- ================= 手牌 ================= -->
+  <footer class="handbar">
+    <div class="pile" id="pileLeft">
+      <div class="pn"><b id="deckN">0</b><span>牌库</span></div>
+      <div class="pn"><b id="discN">0</b><span>弃牌</span></div>
+    </div>
+    <div class="hand" id="hand"></div>
+    <div class="pile" id="pileRight">
+      <div class="pn"><b id="enemyHandN">0</b><span>对手手牌</span></div>
+    </div>
+  </footer>
+</div>
+
+<svg class="draglayer" id="dragLayer"></svg>
+<div class="fxlayer" id="fxLayer"></div>
+<div class="banner" id="banner"></div>
+<div class="toast" id="toast"></div>
+
+<!-- ================= 主界面 ================= -->
+<div class="titlescreen" id="titleScreen">
+  <span class="ts-rays"></span>
+  <span class="ts-beams"><i></i><i></i><i></i><i></i></span>
+  <span class="ts-crowd"></span>
+
+  <div class="ts-inner">
+    <div class="ts-kicker">BANG DREAM! · OUR NOTES</div>
+    <h1 class="ts-title latin">Notes</h1>
+    <div class="ts-sub">五支乐队，五个人。把成员送上 Livehouse 的舞台，<br>先把闪耀值唱到 50 的那边赢下这场演出。</div>
+
+    <div class="ts-actions">
+      <button class="btn-play" id="btnPlay"><span>开始游戏</span></button>
+      <button class="btn-ghost" id="btnRules2">玩法说明</button>
+    </div>
+
+    <div class="ts-bands" id="tsBands"></div>
+  </div>
+</div>
+
+<!-- ================= 开演前：乐队 → 对手 → 难度 ================= -->
+<div class="overlay hidden" id="pickModal">
+  <div class="modal wide pick">
+    <ol class="steps" id="pickSteps">
+      <li class="on">01 · 乐队</li>
+      <li>02 · 对手</li>
+      <li>03 · 难度</li>
+    </ol>
+    <h1 id="pickTitle">请选择乐队</h1>
+    <div class="sub" id="pickSub">选出你要带的那一支。</div>
+
+    <div class="pool" id="pickPool"></div>
+
+    <div class="actions">
+      <button class="btn-ghost" id="btnPickBack">返回</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 规则 ================= -->
+<div class="overlay hidden" id="rulesModal">
+  <div class="modal wide">
+    <button class="modal-x" id="btnCloseRulesX" title="关闭" aria-label="关闭">✕</button>
+    <h1>怎么玩</h1>
+    <div class="sub">五人乐队常驻自己的阵营，抽剪影卡加持，把成员送上舞台抢闪耀值。</div>
+
+    <h3>目标</h3>
+    <p>先把自己的<b>闪耀值</b>唱到 <b id="rGoal">50</b> 就赢下这场演出。</p>
+
+    <h3>三个区域</h3>
+    <ul>
+      <li><b>自己阵营</b>：开局五个人都在这儿待命。</li>
+      <li><b>舞台</b>：中间那个台子，双方共用，最多站 <b id="rSlot">5</b> 个人（不预留格子，谁上来就自适应排开）。</li>
+      <li><b>休息</b>：活力值打到 0 就退回阵营休息 <b id="rRest">3</b> 回合，回来时活力值全满。</li>
+    </ul>
+
+    <h3>星星 ★</h3>
+    <ul>
+      <li>第 1 回合上限 1 颗，之后每回合 +1，涨到 <b id="rStar">8</b> 就不再增长；每回合开始补满。</li>
+      <li>当前星星数就显示在<b>自己阵营左边</b>那个大星星盘上。</li>
+      <li>登台 / 下场：花该成员的<b>费</b>（队长 <b id="rMove">3</b> ★，其余 2 ★，见成员卡左上角）　·　卡牌：看卡面左上角。</li>
+      <li><b>在舞台上</b>发动对战：<b id="rAtkStage">2</b> ★　·　<b>在自己阵营</b>打台上的敌人：<b id="rAtkCamp">3</b> ★。</li>
+    </ul>
+
+    <h3>成员数值</h3>
+    <ul>
+      <li><b>队长</b>（每队主唱）：费 3 ★、技能值 3、活力值 5，<b>登台时额外 +1 闪耀值</b>。</li>
+      <li><b>其余成员</b>：费 2 ★、技能值 2、活力值 5。</li>
+    </ul>
+
+    <h3>怎么操作</h3>
+    <ul>
+      <li><b>按住自己的成员拖出去</b>，会拉出一条星星箭头流：
+        拖到台子上 = 登台，拖回自己阵营 = 下场，拖到敌方成员身上 = 和他开打。</li>
+      <li><b>按住手牌拖出去</b>：需要目标的卡，把它拖到目标成员身上松手；
+        不需要目标的卡，<b>明显往上拖出手牌区</b>再松手就打出。</li>
+      <li><b>谢幕</b>（6★ 共通卡，每方 2 张）：强制让舞台上<b>双方所有成员</b>下台、各回各的阵营，无视怯场与禁演。</li>
+      <li><code>Esc</code> 取消选择，<code>空格</code> 结束回合。</li>
+    </ul>
+
+    <h3>距离与射程</h3>
+    <ul>
+      <li>自己阵营 ↔ 舞台 = 1，舞台 ↔ 对方阵营 = 1，攻击距离是 2。</li>
+      <li>在<b>自己阵营</b>：只能打舞台上的敌人，出手要 <b>3</b> ★。</li>
+      <li>在<b>舞台上</b>：能打舞台上的敌人，也能打对方阵营里的敌人，出手只要 <b>2</b> ★。</li>
+      <li>己方成员<b>永远不能</b>跑到对方阵营里去。</li>
+    </ul>
+
+    <h3>难度</h3>
+    <p>开局选完两支乐队后选难度，只影响电脑对手（你的规则三档完全一样）。三档对手都会<b>积极上台</b>抢位置——舞台 5 个位置双方共用，闪耀值又是唯一的胜负手：<b>简单</b>每回合 2 步、只打台上的人；<b>普通</b> 4 步、会追击阵营里的敌人；<b>困难</b> 8 步、五个人全推上台，而且每回合多 1 ★、多抽 1 张牌，还会优先集火你的队长。</p>
+
+    <h3>回合结束结算</h3>
+    <ul>
+      <li>台上每有 1 名己方成员 → 闪耀值 +1。</li>
+      <li>台上有 3 人 → 额外 +1；4 人 → 额外 +2；5 人 → 额外 +3（也就是一次最多 +8）。</li>
+    </ul>
+
+    <h3>状态</h3>
+    <ul>
+      <li><b>台风</b>：受到的伤害减少，持续到你的下个回合开始。</li>
+      <li><b>怯场</b>：<b>下一个回合完全无法行动</b> —— 不能移动、不能对战，也不计入回合结束的闪耀结算；卡上会盖一层紫色遮罩，到该回合结束自动解除（被「净化」可提前解除）。</li>
+      <li><b>禁演</b>：无法上台／下场，<b>也无法对战</b>。</li>
+      <li><b>回避</b>：无法被作为对战目标，持续到施放者的下个回合开始（绿色描边 +「回」标记）。</li>
+    </ul>
+
+    <div class="actions">
+      <button class="btn-primary" id="btnCloseRules">知道了</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 结算 ================= -->
+<div class="overlay hidden" id="endModal">
+  <div class="modal" style="text-align:center">
+    <div class="verdict" id="endVerdict"></div>
+    <h1 id="endTitle">演出结束</h1>
+    <div class="sub" id="endSub"></div>
+    <div class="actions" style="justify-content:center">
+      <button class="btn-primary" id="btnEndHome">返回主菜单</button>
+      <button class="btn-ghost" id="btnAgain">再演一场</button>
+    </div>
+  </div>
+</div>
+
+<script src="src/config.js"></script>
+<script src="src/art.js"></script>
+<script src="src/bands.js"></script>
+<script src="src/cards.js"></script>
+<script src="src/effects.js"></script>
+<script src="src/engine.js"></script>
+<script src="src/ai.js"></script>
+<script src="src/ui.js"></script>
+<script src="src/main.js"></script>
+</body>
+</html>
